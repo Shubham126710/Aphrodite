@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/logo.png" alt="Aphrodite Logo" width="128" />
+  <img src="public/logo.png" alt="Aphrodite Logo" width="256" />
   <h1 align="center">Aphrodite</h1>
   <p align="center">
     <strong>A modern, full-stack application built for connecting people.</strong>
@@ -25,12 +25,13 @@
 
 ## 📖 Overview
 
-**Aphrodite** is a modern web application designed to bring people together. It features a curated landing page and an integrated authentication system that allows users to sign up and establish their profiles.
+**Aphrodite** is a modern web application designed to bring people together. At its core, the project operates on the nostalgic principle of **FLAMES**—an acronym standing for **F**riends, **L**overs, **A**ffectionate, **M**arriage, **E**nemies, and **S**iblings. By reimagining this classic relationship-calculating algorithm for the modern web, Aphrodite connects individuals in playful and meaningful ways. It features a curated landing page and an integrated authentication system that allows users to sign up and establish their profiles.
 
 The application boasts a highly responsive and visually appealing interface natively built using React, Vite, and Tailwind CSS.
 
 ## ✨ Features
 
+- **FLAMES Algorithm**: The heart of the application, calculating romantic and plutonic compatibilities based on the timeless acronym (**F**riends, **L**overs, **A**ffectionate, **M**arriage, **E**nemies, **S**iblings).
 - **User Authentication**: Secure user accounts and seamless registration powered by Supabase Auth.
 - **Custom Profiles**: Extended user metadata handling for personalized experiences (including preferences like age, gender, algorithms, and avatars).
 - **Responsive Design**: Fully optimized for desktop and mobile reading experiences with custom Tailwind grids.
