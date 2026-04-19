@@ -1,4 +1,5 @@
 <div align="center">
+  <img src="public/logo.png" alt="Aphrodite Logo" width="128" />
   <h1 align="center">Aphrodite</h1>
   <p align="center">
     <strong>A modern, full-stack application built for connecting people.</strong>
