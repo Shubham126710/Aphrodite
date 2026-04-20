@@ -8,6 +8,7 @@ import Manifesto from './components/Manifesto';
 import Dashboard from './components/Dashboard';
 
 export interface UserProfileData {
+  id: string;
   firstName: string;
   lastName: string;
   avatarUrl: string;
@@ -27,7 +28,7 @@ function App() {
       if (session?.user?.user_metadata) {
         const metadata = session.user.user_metadata;
         setUserProfile({
-          
+          id: session.user.id,
           firstName: metadata.first_name || "User",
           lastName: metadata.last_name || "",
           avatarUrl: metadata.avatar_url || "/avatar1.png",

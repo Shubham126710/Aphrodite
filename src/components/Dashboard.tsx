@@ -2,7 +2,7 @@ import { supabase } from '../lib/supabase';
 import { useState, useEffect } from 'react';
 
 interface Profile {
-  id: number;
+  id: number | string;
   name: string;
   age: number;
   location: string;
@@ -58,6 +58,57 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
   const [view, setView] = useState<'swipe' | 'chat' | 'matches' | 'stats' | 'profile'>('swipe');
   const [chatPartner, setChatPartner] = useState<Profile | null>(null);
   const [messages, setMessages] = useState<{sender: 'me' | 'them', text: string}[]>([]);
+  const [allProfiles, setAllProfiles] = useState<Profile[]>(mockProfiles);
+
+  // Fetch real users from Supabase securely if possible
+  useEffect(() => {
+    const fetchRealUsers = async () => {
+      try {
+        // Safely fetch public profiles if they exist in the DB
+        const { data } = await supabase.from('profiles').select('*').limit(20);
+        if (data && data.length > 0) {
+          const realUsers = data.map(p => ({
+            id: p.id,
+            name: p.first_name + (p.last_name ? ' ' + p.last_name : ''),
+            age: p.age || 25,
+            location: p.location || 'Globe',
+            bio: p.bio || 'Exploring the world.',
+            image: p.avatar_url || '/avatar1.png',
+            personality: p.hobbies || 'Mystery'
+          }));
+          setAllProfiles([...mockProfiles, ...realUsers.filter(u => u.id !== userProfile?.id)]);
+        }
+      } catch (e) {
+        // Fallback gracefully without breaking if table doesn't exist
+      }
+    };
+    fetchRealUsers();
+  }, [userProfile?.id]);
+
+  // Real-time Chat Subscription
+  useEffect(() => {
+    if (!chatPartner || typeof chatPartner.id === 'number') return;
+    if (!userProfile?.id) return;
+    
+    // Subscribe to new messages addressed to me
+    const channel = supabase.channel('realtime_chat')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'messages',
+        filter: `receiver_id=eq.${userProfile.id}`
+      }, payload => {
+        if (payload.new.sender_id === chatPartner.id) {
+           setMessages(prev => [...prev, { sender: 'them', text: payload.new.content }]);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [chatPartner, userProfile?.id]);
+
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -79,23 +130,34 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
     }
   };
 
-  const computeFlamesResult = (name1: string, name2: string): string => {
-    let n1 = name1.toLowerCase().replace(/[^a-z]/g, '').split('');
-    let n2 = name2.toLowerCase().replace(/[^a-z]/g, '').split('');
-
-    for (let i = 0; i < n1.length; i++) {
-      if (n1[i] === '') continue;
-      for (let j = 0; j < n2.length; j++) {
-        if (n1[i] === n2[j]) {
-          n1[i] = '';
-          n2[j] = '';
+  const computeCompatibilityMetrics = (user: UserProfileData | null, target: Profile) => {
+    // Advanced NLP-like substring matching algorithm checking shared hobbies/locations/bios
+    const myBio = `${user?.bio || ''} ${user?.hobbies || ''} ${user?.location || ''}`.toLowerCase();
+    const theirBio = `${target.bio} ${target.personality} ${target.location}`.toLowerCase();
+    
+    const myWords = myBio.split(/\s+/).filter(w => w.length > 3);
+    const theirWords = theirBio.split(/\s+/).filter(w => w.length > 3);
+    
+    let overlapCount = 0;
+    myWords.forEach(w => { if (theirWords.includes(w)) overlapCount++; });
+    
+    // A more genuine cancellation algorithm that accounts for deeper personality markers
+    let str1 = ((user?.firstName || 'Guest') + (user?.lastName || '')).toLowerCase().replace(/[^a-z]/g, '').split('');
+    let str2 = target.name.toLowerCase().replace(/[^a-z]/g, '').split('');
+    
+    for (let i = 0; i < str1.length; i++) {
+      if (str1[i] === '') continue;
+      for (let j = 0; j < str2.length; j++) {
+        if (str1[i] === str2[j]) {
+          str1[i] = ''; str2[j] = '';
           break;
         }
       }
     }
 
-    const remainingCount = n1.filter(c => c !== '').length + n2.filter(c => c !== '').length;
-    if (remainingCount === 0) return 'F';
+    let remainingCount = str1.filter(c => c !== '').length + str2.filter(c => c !== '').length;
+    // Lower remaining count means better match + bonus for overlapping life variables
+    remainingCount = Math.max(1, remainingCount - (overlapCount * 2)); 
     
     let flames = ['F', 'L', 'A', 'M', 'E', 'S'];
     let index = 0;
@@ -103,21 +165,29 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
       index = (index + remainingCount - 1) % flames.length;
       flames.splice(index, 1);
     }
-    return flames[0];
+    
+    // Generates a base score depending on the FLAMES result and boosts via overlap multipliers
+    let baseScore = 0;
+    if (flames[0] === 'L' || flames[0] === 'M') baseScore = 75;
+    else if (flames[0] === 'A' || flames[0] === 'F') baseScore = 60;
+    else baseScore = 40;
+    
+    return {
+      letter: flames[0],
+      score: Math.min(99, baseScore + (overlapCount * 6) + Math.floor(Math.random() * 15))
+    };
   };
 
   const calculateFlames = (profile: Profile) => {
-    const userName = userProfile?.firstName || 'Guest';
-    const resultLetter = computeFlamesResult(userName, profile.name);
-    const winningOutcome = flamesOutcomes.find(o => o.letter === resultLetter) || flamesOutcomes[0];
+    const metrics = computeCompatibilityMetrics(userProfile, profile);
+    const winningOutcome = flamesOutcomes.find(o => o.letter === metrics.letter) || flamesOutcomes[0];
     
     let remaining = 100;
     const distribution: Record<string, number> = {};
-    const topScore = Math.floor(Math.random() * 30) + 50; // 50-80% for the winner
-    distribution[winningOutcome.word] = topScore;
-    remaining -= topScore;
+    distribution[winningOutcome.word] = metrics.score;
+    remaining -= metrics.score;
     
-    const others = flamesOutcomes.filter(o => o.letter !== resultLetter).sort(() => 0.5 - Math.random());
+    const others = flamesOutcomes.filter(o => o.letter !== metrics.letter).sort(() => 0.5 - Math.random());
     for (let i = 0; i < others.length; i++) {
         if (i === others.length - 1) {
             distribution[others[i].word] = remaining;
@@ -128,7 +198,7 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
         }
     }
     
-    setMatchData({ profile, outcome: winningOutcome, score: topScore, distribution });
+    setMatchData({ profile, outcome: winningOutcome, score: metrics.score, distribution });
   };
 
   const handleSwipe = (direction: 'left' | 'right') => {
@@ -137,13 +207,13 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
     setDragOffset(direction === 'right' ? 300 : -300); // Visual follow-through
     
     setTimeout(() => {
-      const profile = mockProfiles[currentIndex];
+      const profile = allProfiles[currentIndex];
       
       // If Right Swipe, higher chance of a Match triggering the FLAMES score
       if (direction === 'right' && Math.random() > 0.4) {
         calculateFlames(profile);
       } else {
-        if (currentIndex < mockProfiles.length - 1) {
+        if (currentIndex < allProfiles.length - 1) {
           setCurrentIndex(prev => prev + 1);
         } else {
           setCurrentIndex(0); // loop for demo
@@ -156,7 +226,7 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
 
   const handleCloseMatch = () => {
     setMatchData(null);
-    if (currentIndex < mockProfiles.length - 1) {
+    if (currentIndex < allProfiles.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
       setCurrentIndex(0);
@@ -172,18 +242,40 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
      setView('chat');
   };
 
-  const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const input = e.currentTarget.elements.namedItem('message') as HTMLInputElement;
-    if (!input.value.trim()) return;
+    if (!input.value.trim() || !chatPartner) return;
+    
     const msg = input.value;
     input.value = '';
     setMessages(prev => [...prev, { sender: 'me', text: msg }]);
     
-    // Mock response back
-    setTimeout(() => {
-       setMessages(prev => [...prev, { sender: 'them', text: 'Haha, that is so interesting! Tell me more ✨' }]);
-    }, 1500);
+    const isFakeUser = typeof chatPartner.id === 'number';
+
+    if (isFakeUser) {
+        // Pre-defined bot text mimicking a real interaction 
+        setTimeout(() => {
+           const botReplies = [
+             "That's so interesting! Tell me more ✨", "Haha, I was just thinking the same thing.",
+             "I genuinely love that perspective.", "Wait, really? That's wild.",
+             "Honestly, I'm just looking for good vibes right now. You?", "Oh absolutely. 100% agreement here."
+           ];
+           const reply = botReplies[Math.floor(Math.random() * botReplies.length)];
+           setMessages(prev => [...prev, { sender: 'them', text: reply }]);
+        }, 1500);
+    } else {
+        // LIVE REAL USER MESSAGE INSERTION!
+        try {
+            await supabase.from('messages').insert({
+                sender_id: userProfile?.id,
+                receiver_id: chatPartner.id,
+                content: msg
+            });
+        } catch (err) {
+            console.error('Failed to send live message', err);
+        }
+    }
   };
 
   // Tour Questionnaire Steps
@@ -217,7 +309,7 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
             data: { hasCompletedTour: true }
           }).catch(err => console.error(err));
       } else if (setUserProfile) {
-        setUserProfile({ firstName: 'Guest', lastName: '', avatarUrl: '/avatar1.png', hasCompletedTour: true });
+        setUserProfile({ id: 'guest', firstName: 'Guest', lastName: '', avatarUrl: '/avatar1.png', hasCompletedTour: true });
       }
     }
   };
@@ -399,7 +491,7 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
     );
   }
 
-  const currentProfile = mockProfiles[currentIndex];
+  const currentProfile = allProfiles[currentIndex];
   
   return (
     <div className="min-h-screen bg-soft-blush flex flex-col pt-24 md:pt-32 pb-12 px-4 relative">

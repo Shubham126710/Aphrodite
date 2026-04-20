@@ -37,6 +37,7 @@ export default function Auth({ setCurrentPage, setUserProfile }: AuthProps) {
         if (error) throw error;
         const metadata = data.user.user_metadata || {};
         setUserProfile({
+          id: data.session ? data.session.user.id : data.user.id,
           firstName: metadata.first_name || "User",
           lastName: metadata.last_name || "",
           avatarUrl: metadata.avatar_url || "/avatar1.png",
@@ -63,6 +64,7 @@ export default function Auth({ setCurrentPage, setUserProfile }: AuthProps) {
         });
         if (error) throw error;
         setUserProfile({
+          id: 'guest',
           firstName,
           lastName,
           avatarUrl: `/avatar${avatarIndex}.png`,
