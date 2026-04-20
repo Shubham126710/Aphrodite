@@ -36,12 +36,13 @@ export interface DashboardProps {
 
 export default function Dashboard({ setCurrentPage }: DashboardProps) {
   const [tourStep, setTourStep] = useState<number>(0);
+  // @ts-expect-error unused
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [matchData, setMatchData] = useState<{ profile: Profile, outcome: typeof flamesOutcomes[0], score: number, distribution: Record<string, number> } | null>(null);
   const [swipeState, setSwipeState] = useState<'idle' | 'left' | 'right'>('idle');
   const [dragOffset, setDragOffset] = useState<number>(0);
-  const [view, setView] = useState<'swipe' | 'chat'>('swipe');
+  const [view, setView] = useState<'swipe' | 'chat' | 'matches' | 'stats'>('swipe');
   const [chatPartner, setChatPartner] = useState<Profile | null>(null);
   const [messages, setMessages] = useState<{sender: 'me' | 'them', text: string}[]>([]);
 
@@ -262,10 +263,11 @@ export default function Dashboard({ setCurrentPage }: DashboardProps) {
           Aphrodite
         </div>
         
-        <div className="hidden md:flex bg-white/50 backdrop-blur-md rounded-full px-6 py-2 border border-deep-rose/10 gap-6 items-center shadow-sm">
-            <button onClick={() => setView('swipe')} className={`font-sans text-[10px] uppercase tracking-[0.2em] font-bold transition-all hover:scale-105 ${view === 'swipe' ? 'text-deep-rose' : 'text-neutral-dark/60 hover:text-deep-rose'}`}>Explore</button>
-            <button onClick={() => {}} className="font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-dark/60 hover:text-deep-rose transition-all hover:scale-105">Matches</button>
-            <button onClick={() => {}} className="font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-dark/60 hover:text-deep-rose transition-all hover:scale-105">Stats</button>
+        <div className="hidden md:flex bg-white/50 backdrop-blur-md rounded-full px-6 h-10 border border-deep-rose/10 gap-6 items-center justify-center shadow-sm">
+            <button onClick={() => setView('swipe')} className={`font-sans flex items-center h-full text-[10px] uppercase tracking-[0.2em] font-bold transition-all hover:scale-105 ${view === 'swipe' ? 'text-deep-rose' : 'text-neutral-dark/60 hover:text-deep-rose'}`}>Explore</button>
+            <button onClick={() => setView('matches')} className={`font-sans flex items-center h-full text-[10px] uppercase tracking-[0.2em] font-bold transition-all hover:scale-105 ${view === 'matches' ? 'text-deep-rose' : 'text-neutral-dark/60 hover:text-deep-rose'}`}>Matches</button>
+            <button onClick={() => setView('chat')} className={`font-sans flex items-center h-full text-[10px] uppercase tracking-[0.2em] font-bold transition-all hover:scale-105 ${view === 'chat' ? 'text-deep-rose' : 'text-neutral-dark/60 hover:text-deep-rose'}`}>Chat</button>
+            <button onClick={() => setView('stats')} className={`font-sans flex items-center h-full text-[10px] uppercase tracking-[0.2em] font-bold transition-all hover:scale-105 ${view === 'stats' ? 'text-deep-rose' : 'text-neutral-dark/60 hover:text-deep-rose'}`}>Stats</button>
         </div>
 
         <div className="flex gap-4 items-center">
@@ -278,7 +280,7 @@ export default function Dashboard({ setCurrentPage }: DashboardProps) {
       <div className="flex-1 flex flex-col items-center justify-center relative w-full max-w-[400px] mx-auto">
         
         {/* Match / Flames Pop-up Modal */}
-        {matchData && (
+        {matchData && view === 'swipe' && (
           <div className="fixed inset-0 bg-off-white/90 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
             <div className="bg-soft-blush w-full max-w-md rounded-[40px] p-8 md:p-12 text-center shadow-2xl border border-deep-rose/20 flex flex-col items-center relative overflow-hidden">
                <div className="absolute -top-20 -right-20 w-64 h-64 bg-deep-rose/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -338,62 +340,95 @@ export default function Dashboard({ setCurrentPage }: DashboardProps) {
           </div>
         )}
 
-        {/* Swipe Card Deck */}
-        <div className="relative w-full aspect-[3/4] mb-8" style={{ perspective: '1000px' }}>
-          <div 
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-            className={`absolute inset-0 bg-off-white rounded-[32px] shadow-[0_20px_40px_-15px_rgba(158,58,68,0.2)] border border-deep-rose/10 overflow-hidden cursor-grab active:cursor-grabbing transform-gpu
-              ${swipeState !== 'idle' ? 'transition-transform duration-500 ease-out' : ''}
-              ${swipeState === 'left' ? '-translate-x-[150%] -rotate-12 opacity-0' : ''}
-              ${swipeState === 'right' ? 'translate-x-[150%] rotate-12 opacity-0' : ''}
-            `}
-            style={{
-              transform: swipeState === 'idle' ? `translateX(${dragOffset}px) rotate(${dragOffset * 0.05}deg)` : undefined
-            }}
-          >
-             <img src={currentProfile.image} alt={currentProfile.name} className="w-full h-[65%] object-cover bg-soft-blush pointer-events-none" />
-             
-             {/* Gradient overlay for text readability */}
-             <div className="absolute inset-0 top-1/2 bg-gradient-to-t from-off-white via-off-white/80 to-transparent pointer-events-none"></div>
-             
-             <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 pt-0 flex flex-col justify-end">
-               <div className="flex justify-between items-end mb-2">
-                 <h2 className="font-serif text-3xl font-medium text-neutral-dark">{currentProfile.name}, <span className="text-2xl text-neutral-dark/70 font-normal">{currentProfile.age}</span></h2>
-               </div>
-               <p className="font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-deep-rose mb-3">
-                 {currentProfile.personality} • {currentProfile.location}
-               </p>
-               <p className="text-neutral-dark/80 text-sm leading-relaxed line-clamp-3">
-                 {currentProfile.bio}
-               </p>
-             </div>
-          </div>
-        </div>
+        {/* Swipe View */}
+        {view === 'swipe' && (
+          <>
+            {/* Swipe Card Deck */}
+            <div className="relative w-full aspect-[3/4] mb-8" style={{ perspective: '1000px' }}>
+              <div 
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+                className={`absolute inset-0 bg-off-white rounded-[32px] shadow-[0_20px_40px_-15px_rgba(158,58,68,0.2)] border border-deep-rose/10 overflow-hidden cursor-grab active:cursor-grabbing transform-gpu
+                  ${swipeState !== 'idle' ? 'transition-transform duration-500 ease-out' : ''}
+                  ${swipeState === 'left' ? '-translate-x-[150%] -rotate-12 opacity-0' : ''}
+                  ${swipeState === 'right' ? 'translate-x-[150%] rotate-12 opacity-0' : ''}
+                `}
+                style={{
+                  transform: swipeState === 'idle' ? `translateX(${dragOffset}px) rotate(${dragOffset * 0.05}deg)` : undefined
+                }}
+              >
+                 <img src={currentProfile.image} alt={currentProfile.name} className="w-full h-[65%] object-cover bg-soft-blush pointer-events-none" />
+                 
+                 {/* Gradient overlay for text readability */}
+                 <div className="absolute inset-0 top-1/2 bg-gradient-to-t from-off-white via-off-white/80 to-transparent pointer-events-none"></div>
+                 
+                 <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 pt-0 flex flex-col justify-end">
+                   <div className="flex justify-between items-end mb-2">
+                     <h2 className="font-serif text-3xl font-medium text-neutral-dark">{currentProfile.name}, <span className="text-2xl text-neutral-dark/70 font-normal">{currentProfile.age}</span></h2>
+                   </div>
+                   <p className="font-sans text-[10px] uppercase tracking-[0.2em] font-bold text-deep-rose mb-3">
+                     {currentProfile.personality} • {currentProfile.location}
+                   </p>
+                   <p className="text-neutral-dark/80 text-sm leading-relaxed line-clamp-3">
+                     {currentProfile.bio}
+                   </p>
+                 </div>
+              </div>
+            </div>
 
-        {/* Swipe Controls */}
-        <div className="flex gap-6 justify-center items-center w-full z-10">
-          <button 
-            onClick={() => handleSwipe('left')}
-            className="w-16 h-16 rounded-full bg-off-white border-[1.5px] border-deep-rose/20 shadow-lg flex items-center justify-center hover:bg-soft-blush hover:scale-110 transition-all group"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-neutral-dark group-hover:text-deep-rose transition-colors">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          
-          {/* Match Button */}
-          <button 
-            onClick={() => handleSwipe('right')}
-            className="w-20 h-20 rounded-full bg-deep-rose shadow-[0_15px_30px_-10px_rgba(158,58,68,0.5)] flex items-center justify-center hover:scale-110 transition-all hover:bg-neutral-dark group"
-          >
-            <svg viewBox="0 0 24 24" fill="white" className="w-8 h-8 group-hover:scale-110 transition-transform">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-          </button>
-        </div>
+            {/* Swipe Controls */}
+            <div className="flex gap-6 justify-center items-center w-full z-10">
+              <button 
+                onClick={() => handleSwipe('left')}
+                className="w-16 h-16 rounded-full bg-off-white border-[1.5px] border-deep-rose/20 shadow-lg flex items-center justify-center hover:bg-soft-blush hover:scale-110 transition-all group"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 text-neutral-dark group-hover:text-deep-rose transition-colors">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              
+              {/* Match Button */}
+              <button 
+                onClick={() => handleSwipe('right')}
+                className="w-20 h-20 rounded-full bg-deep-rose shadow-[0_15px_30px_-10px_rgba(158,58,68,0.5)] flex items-center justify-center hover:scale-110 transition-all hover:bg-neutral-dark group"
+              >
+                <svg viewBox="0 0 24 24" fill="white" className="w-8 h-8 group-hover:scale-110 transition-transform">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Empty States for non-swipe views */}
+        {view === 'matches' && (
+          <div className="text-center font-sans tracking-widest text-neutral-dark/60 uppercase text-xs font-bold animate-fade-in">
+             <div className="w-16 h-16 mx-auto bg-deep-rose/10 rounded-full flex items-center justify-center mb-4">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-8 h-8 text-deep-rose"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+             </div>
+             No matches pending. Keep exploring!
+          </div>
+        )}
+
+        {view === 'stats' && (
+          <div className="text-center font-sans tracking-widest text-neutral-dark/60 uppercase text-xs font-bold animate-fade-in">
+             <div className="w-16 h-16 mx-auto bg-deep-rose/10 rounded-full flex items-center justify-center mb-4">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-8 h-8 text-deep-rose"><path strokeLinecap="round" strokeLinejoin="round" d="M16 8v8m-4-5v5m-4-2v2m12-8v10a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2z"/></svg>
+             </div>
+             Stats calculating based on your activity...
+          </div>
+        )}
+
+        {view === 'chat' && !chatPartner && (
+          <div className="text-center font-sans tracking-widest text-neutral-dark/60 uppercase text-xs font-bold animate-fade-in">
+             <div className="w-16 h-16 mx-auto bg-deep-rose/10 rounded-full flex items-center justify-center mb-4">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-8 h-8 text-deep-rose"><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+             </div>
+             No active chats right now.
+          </div>
+        )}
 
       </div>
     </div>
