@@ -23,14 +23,14 @@ export default function Navbar({ setCurrentPage }: NavbarProps) {
     }`}>
       <div className="max-w-[87.5rem] mx-auto px-4 md:px-8 flex justify-between items-center relative">
         <div className="flex space-x-6 md:space-x-12 items-center">
-          <button onClick={() => setCurrentPage('home')} className="hover:text-primary-pink transition-colors uppercase tracking-[0.2em]">Discover</button>
+          <button onClick={() => setCurrentPage('home')} className="hover:text-primary-pink transition-colors hidden md:inline uppercase tracking-[0.2em]">Discover</button>
           <button onClick={() => setCurrentPage('home')} className="hover:text-primary-pink transition-colors hidden md:inline uppercase tracking-[0.2em]">Features</button>
         </div>
         
         <div 
           onClick={() => setCurrentPage('home')}
           className={`absolute left-1/2 -translate-x-1/2 transition-transform duration-500 cursor-pointer font-serif text-deep-rose italic tracking-widest font-medium normal-case flex items-center justify-center ${
-          scrolled ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'
+          scrolled ? 'text-xl md:text-3xl' : 'text-2xl md:text-4xl'
         }`}>
           Aphrodite
         </div>
@@ -40,7 +40,7 @@ export default function Navbar({ setCurrentPage }: NavbarProps) {
           <button 
             onClick={() => setCurrentPage('auth')}
             className={`bg-primary-pink text-off-white rounded-full hover:bg-deep-rose transition-all shadow-md hover:shadow-lg uppercase tracking-[0.2em] ${
-            scrolled ? 'px-4 py-1.5 text-[9px]' : 'px-5 py-2'
+            scrolled ? 'px-3 py-1 text-[0.5rem] md:px-4 md:py-1.5 md:text-[0.5625rem]' : 'px-3 py-1.5 text-[0.5625rem] md:px-5 md:py-2 md:text-xs'
           }`}>
             Join Club
           </button>
