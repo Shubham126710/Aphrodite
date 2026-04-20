@@ -254,16 +254,19 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
     const isFakeUser = typeof chatPartner.id === 'number';
 
     if (isFakeUser) {
-        // Pre-defined bot text mimicking a real interaction 
-        setTimeout(() => {
-           const botReplies = [
-             "That's so interesting! Tell me more ✨", "Haha, I was just thinking the same thing.",
-             "I genuinely love that perspective.", "Wait, really? That's wild.",
-             "Honestly, I'm just looking for good vibes right now. You?", "Oh absolutely. 100% agreement here."
-           ];
-           const reply = botReplies[Math.floor(Math.random() * botReplies.length)];
-           setMessages(prev => [...prev, { sender: 'them', text: reply }]);
-        }, 1500);
+        // ML Model integration for natural fake user replies
+        setTimeout(async () => {
+            try {
+                const seed = Math.floor(Math.random() * 1000000);
+                const queryContext = encodeURIComponent(`You are ${chatPartner.name}, a fun user on a dating app called Aphrodite. Read this message: "${msg}". Give a very brief, natural, chill, dating-app style text reply. No quotes, no intro. Avoid robotic AI talk.`);
+                const aiResponse = await fetch(`https://text.pollinations.ai/${queryContext}?seed=${seed}&model=openai`);
+                const replyText = await aiResponse.text();
+                const cleanReply = replyText.replace(/^"|"$/g, '').trim();
+                setMessages(prev => [...prev, { sender: 'them', text: cleanReply }]);
+            } catch (e) {
+                setMessages(prev => [...prev, { sender: 'them', text: "haha that's so valid" }]);
+            }
+        }, 500);
     } else {
         // LIVE REAL USER MESSAGE INSERTION!
         try {
@@ -484,7 +487,7 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
               autoComplete="off"
             />
             <button type="submit" className="w-12 h-12 shrink-0 bg-deep-rose rounded-full flex items-center justify-center text-off-white hover:scale-105 transition-transform shadow-lg">
-               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 -ml-1"><path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 ml-1"><path strokeLinecap="round" strokeLinejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
             </button>
          </form>
       </div>
