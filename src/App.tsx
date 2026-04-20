@@ -72,10 +72,9 @@ function App() {
           
           {currentPage !== 'auth' && currentPage !== 'dashboard' && <Navbar setCurrentPage={setCurrentPage} />}
 
+          {currentPage === 'dashboard' && <Dashboard setCurrentPage={setCurrentPage} userProfile={userProfile} setUserProfile={setUserProfile} />}
           <div className="perspective-container">
             {currentPage === 'auth' && <Auth setCurrentPage={setCurrentPage} setUserProfile={setUserProfile} />}
-            
-            {currentPage === 'dashboard' && <Dashboard setCurrentPage={setCurrentPage} userProfile={userProfile} setUserProfile={setUserProfile} />}
             
             {currentPage === 'manifesto' && <Manifesto setCurrentPage={setCurrentPage} />}
 

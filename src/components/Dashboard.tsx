@@ -41,6 +41,13 @@ export interface DashboardProps {
 
 export default function Dashboard({ setCurrentPage, userProfile, setUserProfile }: DashboardProps) {
   const [tourStep, setTourStep] = useState<number>(userProfile?.hasCompletedTour ? 15 : 0);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
   // Re-eval when profile finally loads
   
@@ -500,7 +507,7 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
     <div className="min-h-screen bg-soft-blush flex flex-col pt-24 md:pt-32 pb-12 px-4 relative">
       
       {/* Small Header specifically for dashboard */}
-      <div className="absolute top-6 w-full left-0 px-4 md:px-8 flex justify-between items-center z-[60]">
+      <div className={`fixed top-0 left-0 w-full px-4 md:px-8 flex justify-between items-center z-[60] transition-all duration-500 ${scrolled ? "py-4 bg-off-white/90 backdrop-blur-md shadow-sm border-b border-deep-rose/10" : "py-6 bg-transparent"}`}>
         <div className="font-serif text-deep-rose italic tracking-widest text-xl md:text-2xl cursor-pointer hover:scale-105 transition-transform" onClick={() => setCurrentPage('home')}>
           Aphrodite
         </div>
