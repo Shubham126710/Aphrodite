@@ -234,13 +234,26 @@ function App() {
                  </div>
                </div>
 
-               <div className="md:w-1/4">
-                 <h4 className="text-xs uppercase tracking-widest text-white/50 font-bold mb-6">Support</h4>
-                 <ul className="space-y-4 text-sm text-off-white/70">
-                   <li><a href="#" className="hover:text-primary-pink transition-colors">Contact Us</a></li>
-                   <li><a href="#" className="hover:text-primary-pink transition-colors">Privacy Policy</a></li>
-                   <li><a href="#" className="hover:text-primary-pink transition-colors">Terms of Service</a></li>
-                 </ul>
+                <div className="md:w-1/2 flex flex-col sm:flex-row gap-8 md:gap-16 pt-4 md:pt-0">
+                  {/* Shubham Contact */}
+                  <div>
+                    <h4 className="text-[10px] uppercase tracking-widest text-white/50 font-bold mb-4">Contact Shubham</h4>
+                    <ul className="space-y-3 text-xs text-off-white/70 font-sans">
+                      <li>Phone: <a href="tel:8897773251" className="hover:text-primary-pink hover:underline transition-colors">8897773251</a></li>
+                      <li>Email: <a href="mailto:shubham360upadhyay@gmail.com" className="hover:text-primary-pink hover:underline transition-colors">shubham360upadhyay@gmail.com</a></li>
+                      <li>Insta: <a href="https://instagram.com/iamshubham_15" target="_blank" className="hover:text-primary-pink hover:underline transition-colors">@iamshubham_15</a></li>
+                    </ul>
+                  </div>
+                  
+                  {/* Harshita Contact */}
+                  <div>
+                    <h4 className="text-[10px] uppercase tracking-widest text-white/50 font-bold mb-4">Contact Harshita</h4>
+                    <ul className="space-y-3 text-xs text-off-white/70 font-sans">
+                      <li>Phone: <a href="tel:7874594222" className="hover:text-primary-pink hover:underline transition-colors">7874594222</a></li>
+                      <li>Email: <a href="mailto:harshusingh2710@gmail.com" className="hover:text-primary-pink hover:underline transition-colors">harshusingh2710@gmail.com</a></li>
+                      <li>Insta: <a href="https://instagram.com/singh_harshita1706" target="_blank" className="hover:text-primary-pink hover:underline transition-colors">@singh_harshita1706</a></li>
+                    </ul>
+                  </div>
                </div>
              </div>
 

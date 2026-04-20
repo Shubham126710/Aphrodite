@@ -158,7 +158,10 @@ export default function Dashboard({ setCurrentPage }: DashboardProps) {
     { title: "Your morning routine?", options: ['Hit snooze 3 times', 'Up early, hitting the gym', 'Slow coffee and news', 'Rushing out the door'] },
     { title: "What is your biggest dealbreaker?", options: ['Dishonesty', 'Lack of ambition', 'Poor communication', 'Clinginess'] },
     { title: "How do you express affection?", options: ['Surprise gifts', 'Cooking a meal', 'Deep conversations', 'Physical closeness'] },
-    { title: "What's your preferred first date?", options: ['Coffee shop chat', 'Dinner at a nice restaurant', 'An activity (mini-golf, arcade)', 'A scenic walk'] }
+    { title: "What's your preferred first date?", options: ['Coffee shop chat', 'Dinner at a nice restaurant', 'An activity (mini-golf, arcade)', 'A scenic walk'] },
+    { title: "What's an ideal Sunday morning?", options: ['Sleeping in late', 'Farmer\'s market run', 'Intense workout', 'Brunch with friends'] },
+    { title: "Your philosophy on life?", options: ['Go with the flow', 'Plan for the future', 'Live for today', 'Seek knowledge'] },
+    { title: "What kind of pet do you prefer?", options: ['A loyal dog', 'An independent cat', 'Something exotic', 'No pets right now'] }
   ];
 
   const handleAnswer = (option: string) => {
