@@ -24,16 +24,16 @@ export default function Hero({ setCurrentPage }: HeroProps) {
   };
 
   return (
-    <section className="min-h-[100svh] bg-soft-blush text-neutral-dark font-sans relative overflow-hidden flex flex-col p-4 md:p-8 shrink-0 pb-20 md:pb-24 pt-24 md:pt-32">
+    <section className="min-h-[100svh] bg-soft-blush text-neutral-dark font-sans relative overflow-hidden flex flex-col p-4 md:p-8 shrink-0 pb-16 md:pb-20 pt-20 md:pt-28 lg:pt-32">
       <div className="noise-overlay"></div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-16 relative z-10 w-full max-w-[1400px] mx-auto mt-4 py-8 lg:py-0">
+      <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-16 relative z-10 w-full max-w-[1280px] mx-auto mt-4 py-8 lg:py-0">
         
         {/* Central Illustration Area */}
         <div className="lg:w-1/2 flex justify-center order-2 lg:order-1 relative mt-16 md:mt-8 lg:mt-0 w-full z-20">
 
-          <div className="relative bg-off-white p-3 md:p-6 pb-12 md:pb-16 card-frame shadow-[8px_8px_0_0_rgba(158,58,68,0.15)] group rotate-[-2deg] hover:rotate-[-1deg] transition-all duration-500 ease-out flex-shrink-0 w-[240px] sm:w-[280px] md:w-[340px]">
+          <div className="relative bg-off-white p-3 md:p-6 pb-12 md:pb-16 card-frame shadow-[8px_8px_0_0_rgba(158,58,68,0.15)] group rotate-[-2deg] hover:rotate-[-1deg] transition-all duration-500 ease-out flex-shrink-0 w-[220px] sm:w-[260px] md:w-[300px] lg:w-[340px]">
             
             {/* Rotating Stamp/Badge overlaying the corner */}
             <div className="absolute -top-10 -left-10 md:-top-14 md:-left-14 w-28 h-28 md:w-40 md:h-40 rounded-full animate-spin-slow opacity-90 select-none z-30 mix-blend-multiply flex items-center justify-center pointer-events-none">
@@ -81,7 +81,7 @@ export default function Hero({ setCurrentPage }: HeroProps) {
             <img src="/logo.png" alt="Aphrodite Logo" className="h-10 md:h-16 lg:h-24 w-auto object-contain hidden md:block" />
           </div>
           
-          <h1 className="font-serif text-5xl sm:text-6xl md:text-8xl lg:text-[7.5rem] xl:text-[8rem] leading-[1] md:leading-[0.95] text-deep-rose tracking-tight font-semibold flex flex-col">
+          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[7.5rem] leading-[1] md:leading-[0.95] text-deep-rose tracking-tight font-semibold flex flex-col">
             <span>Discover</span>
             <span className="italic text-primary-pink pl-0 lg:pl-16 relative group">
               Perfect

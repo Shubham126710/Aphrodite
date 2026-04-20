@@ -21,7 +21,7 @@ export default function Navbar({ setCurrentPage }: NavbarProps) {
         ? 'bg-off-white/90 backdrop-blur-md shadow-sm py-4 border-b border-deep-rose/10' 
         : 'bg-transparent py-6 border-b-[1.5px] border-deep-rose/20'
     }`}>
-      <div className="max-w-[1400px] mx-auto px-4 md:px-8 flex justify-between items-center relative">
+      <div className="max-w-[1280px] mx-auto px-4 md:px-8 flex justify-between items-center relative">
         <div className="flex space-x-6 md:space-x-12 items-center">
           <button onClick={() => setCurrentPage('home')} className="hover:text-primary-pink transition-colors uppercase tracking-[0.2em]">Discover</button>
           <button onClick={() => setCurrentPage('home')} className="hover:text-primary-pink transition-colors hidden md:inline uppercase tracking-[0.2em]">Features</button>
