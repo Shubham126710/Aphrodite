@@ -1,6 +1,7 @@
 # Aphrodite
 
 <div align="center">
+  <img src="public/logo.png" alt="Aphrodite Logo" width="128" />
   <h1 align="center">Aphrodite</h1>
   <p align="center">
     <strong>A next-generation dating app infused with the ancient art of FLAMES compatibility.</strong>
@@ -43,48 +44,49 @@ Say goodbye to endless surface-level matches. Aphrodite's unique compatibility s
 
 ## 📸 Functionality & Usage
 
-### The Hero Section
-
-![Hero Section](public/screenshots/Hero-Section.png)
-<p align="center"><em>The stunning entry point of Aphrodite, welcoming the curious.</em></p>
-
 ### Loading Screen
-
 ![Loading Screen](public/screenshots/Loading-Screen.png)
 <p align="center"><em>Immersive branded loading screen before entering the app.</em></p>
 
-### Authentication
+### The Hero Section
+![Hero Section](public/screenshots/Hero-Section.png)
+<p align="center"><em>The stunning entry point of Aphrodite, welcoming the curious.</em></p>
 
+### Discover Section
+![Discover Section](public/screenshots/Disover-Section.png)
+<p align="center"><em>Browse potential matches in the Discover feed.</em></p>
+
+### FLAMES Section
+![FLAMES Section](public/screenshots/FLAMES-Section.png)
+<p align="center"><em>Discover potential relationships mapped to the FLAMES acronym.</em></p>
+
+### Login
 ![Login Page](public/screenshots/Login-Page.png)
 <p align="center"><em>Secure user login.</em></p>
 
+### Register
 ![Register Page](public/screenshots/Register-Page.png)
 <p align="center"><em>Swift and refined account creation.</em></p>
 
 ### Welcome Tour
-
 ![Welcome Tour](public/screenshots/Welcome-Tour.png)
 <p align="center"><em>Interactive onboarding seamlessly guiding you into the ecosystem.</em></p>
 
-### App Experience
-
+### Main Hub
 ![Main Hub](public/screenshots/Main-Hub.png)
 <p align="center"><em>The central portal navigating to all of Aphrodite's features.</em></p>
 
-![Discover Section](public/screenshots/Disover-Section.png)
-<p align="center"><em>Browse potential matches in the Discover feed.</em></p>
+### Profile Section
+![Profile Section](public/screenshots/Profile-Section.png)
+<p align="center"><em>Manage your digital identity, edit bios, and change your location seamlessly.</em></p>
 
-![FLAMES Section](public/screenshots/FLAMES-Section.png)
-<p align="center"><em>Discover potential relationships mapped to the FLAMES acronym.</em></p>
-
+### Compatibility
 ![Compatibility Score](public/screenshots/Compatbility-Score.png)
 <p align="center"><em>Deep insight popups on compatibility matching.</em></p>
 
+### Chat Feature
 ![Chat Feature](public/screenshots/Chat-Feature.png)
 <p align="center"><em>Real-time instant messaging with your newly discovered matches.</em></p>
-
-![Profile Section](public/screenshots/Profile-Section.png)
-<p align="center"><em>Manage your digital identity, edit bios, and change your location seamlessly.</em></p>
 
 ---
 
