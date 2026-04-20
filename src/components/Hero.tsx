@@ -24,22 +24,22 @@ export default function Hero({ setCurrentPage }: HeroProps) {
   };
 
   return (
-    <section className="min-h-[100svh] bg-soft-blush text-neutral-dark font-sans relative overflow-hidden flex flex-col p-4 md:p-8 shrink-0 pb-16 md:pb-20 pt-20 md:pt-28 lg:pt-32">
+    <section className="min-h-[100svh] bg-soft-blush text-neutral-dark font-sans relative overflow-hidden flex flex-col p-4 md:p-8 shrink-0 pb-20 md:pb-24 pt-24 md:pt-32">
       <div className="noise-overlay"></div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 relative z-10 w-full max-w-[1024px] mx-auto mt-4 py-8 lg:py-0">
+      <div className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-16 relative z-10 w-full max-w-[87.5rem] mx-auto mt-4 py-8 lg:py-0">
         
         {/* Central Illustration Area */}
         <div className="lg:w-1/2 flex justify-center order-2 lg:order-1 relative mt-16 md:mt-8 lg:mt-0 w-full z-20">
 
-          <div className="relative bg-off-white p-3 md:p-6 pb-12 md:pb-16 card-frame shadow-[8px_8px_0_0_rgba(158,58,68,0.15)] group rotate-[-2deg] hover:rotate-[-1deg] transition-all duration-500 ease-out flex-shrink-0 w-[160px] sm:w-[180px] md:w-[220px] lg:w-[240px]">
+          <div className="relative bg-off-white p-3 md:p-6 pb-12 md:pb-16 card-frame shadow-[8px_8px_0_0_rgba(158,58,68,0.15)] group rotate-[-2deg] hover:rotate-[-1deg] transition-all duration-500 ease-out flex-shrink-0 w-[15rem] sm:w-[17.5rem] md:w-[21.25rem]">
             
             {/* Rotating Stamp/Badge overlaying the corner */}
             <div className="absolute -top-10 -left-10 md:-top-14 md:-left-14 w-28 h-28 md:w-40 md:h-40 rounded-full animate-spin-slow opacity-90 select-none z-30 mix-blend-multiply flex items-center justify-center pointer-events-none">
                <svg viewBox="0 0 100 100" className="w-full h-full text-deep-rose">
                   <path id="circlePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="transparent" />
-                  <text className="text-[11px] font-sans font-bold tracking-[0.2em] fill-current uppercase">
+                  <text className="text-[0.6875rem] font-sans font-bold tracking-[0.2em] fill-current uppercase">
                     <textPath href="#circlePath">EST. 2026 • MODERN ROMANCE ONLINE •</textPath>
                   </text>
                </svg>
@@ -74,14 +74,14 @@ export default function Hero({ setCurrentPage }: HeroProps) {
           
           <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-8 md:-translate-x-12 xl:translate-x-0 relative origin-left">
             <div className="inline-block border-[1.5px] border-deep-rose/30 px-3 py-1.5 md:px-5 md:py-2 rounded-full bg-off-white/80 backdrop-blur-sm shadow-sm hover:scale-105 transition-transform cursor-default">
-               <span className="font-sans text-[8px] md:text-[10px] tracking-[0.4em] uppercase text-deep-rose font-bold">
+               <span className="font-sans text-[0.5rem] md:text-[0.625rem] tracking-[0.4em] uppercase text-deep-rose font-bold">
                  Romance Reimagined
                </span>
             </div>
-            <img src="/logo.png" alt="Aphrodite Logo" className="h-6 md:h-8 lg:h-12 w-auto object-contain hidden md:block" />
+            <img src="/logo.png" alt="Aphrodite Logo" className="h-10 md:h-16 lg:h-24 w-auto object-contain hidden md:block" />
           </div>
           
-          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1] md:leading-[0.95] text-deep-rose tracking-tight font-semibold flex flex-col">
+          <h1 className="font-serif text-5xl sm:text-6xl md:text-8xl lg:text-[7.5rem] xl:text-[8rem] leading-[1] md:leading-[0.95] text-deep-rose tracking-tight font-semibold flex flex-col">
             <span>Discover</span>
             <span className="italic text-primary-pink pl-0 lg:pl-16 relative group">
               Perfect
@@ -94,15 +94,15 @@ export default function Hero({ setCurrentPage }: HeroProps) {
             </a>
           </h1>
           
-          <p className="mt-6 md:mt-10 font-sans text-[10px] sm:text-xs md:text-sm leading-relaxed max-w-lg lg:ml-12 text-neutral-dark/80 font-medium px-4 md:px-8 lg:px-0">
+          <p className="mt-6 md:mt-10 font-sans text-xs sm:text-sm md:text-base leading-relaxed max-w-lg lg:ml-12 text-neutral-dark/80 font-medium px-4 md:px-8 lg:px-0">
             You don't need algorithms deciding your chemistry. Let serendipity guide you in an exclusive space built purely on affection and authenticity.
           </p>
           
           <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-4 md:gap-6 items-center lg:ml-12 z-20">
-            <button onClick={() => setCurrentPage('auth')} className="bg-deep-rose text-off-white font-sans text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold px-6 py-3 md:px-8 md:py-4 rounded-full hover:bg-primary-pink transition-colors hover:-translate-y-1 transform active:scale-95 shadow-[0_8px_20px_-6px_rgba(158,58,68,0.5)]">
+            <button onClick={() => setCurrentPage('auth')} className="bg-deep-rose text-off-white font-sans text-[0.625rem] md:text-xs uppercase tracking-[0.2em] font-bold px-8 py-4 md:px-10 md:py-5 rounded-full hover:bg-primary-pink transition-colors hover:-translate-y-1 transform active:scale-95 shadow-[0_8px_20px_-6px_rgba(158,58,68,0.5)]">
               Begin The Ritual
             </button>
-            <a href="#discover" className="font-sans text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold text-deep-rose hover:text-primary-pink hover:underline underline-offset-4 decoration-primary-pink decoration-2 transition-all">
+            <a href="#discover" className="font-sans text-[0.625rem] md:text-xs uppercase tracking-[0.2em] font-bold text-deep-rose hover:text-primary-pink hover:underline underline-offset-4 decoration-primary-pink decoration-2 transition-all">
               Learn How It Works
             </a>
           </div>

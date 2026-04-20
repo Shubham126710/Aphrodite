@@ -2,7 +2,7 @@ export default function Marquee() {
   return (
     <div className="absolute bottom-0 left-0 w-full overflow-hidden bg-deep-rose text-off-white py-4 border-t-[1.5px] border-neutral-dark/10 z-30 block">
       <div 
-        className="flex whitespace-nowrap font-sans text-[8px] md:text-[10px] uppercase tracking-[0.4em] font-bold w-max animate-ticker"
+        className="flex whitespace-nowrap font-sans text-[0.625rem] md:text-sm uppercase tracking-[0.4em] font-bold w-max animate-ticker"
         style={{ willChange: 'transform' }}
       >
         {Array.from({ length: 4 }).map((_, i) => (
