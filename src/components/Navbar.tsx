@@ -16,10 +16,10 @@ export default function Navbar({ setCurrentPage }: NavbarProps) {
   }, []);
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 font-sans uppercase tracking-[0.2em] text-[10px] md:text-xs ${
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 font-sans uppercase tracking-[0.2em] text-[9px] md:text-[10px] ${
       scrolled 
-        ? 'bg-off-white/90 backdrop-blur-md shadow-sm py-4 border-b border-deep-rose/10' 
-        : 'bg-transparent py-6 border-b-[1.5px] border-deep-rose/20'
+        ? 'bg-off-white/90 backdrop-blur-md shadow-sm py-2 border-b border-deep-rose/10' 
+        : 'bg-transparent py-4 border-b-[1.5px] border-deep-rose/20'
     }`}>
       <div className="max-w-[1024px] mx-auto px-4 md:px-8 flex justify-between items-center relative">
         <div className="flex space-x-6 md:space-x-12 items-center">
@@ -30,7 +30,7 @@ export default function Navbar({ setCurrentPage }: NavbarProps) {
         <div 
           onClick={() => setCurrentPage('home')}
           className={`absolute left-1/2 -translate-x-1/2 transition-transform duration-500 cursor-pointer font-serif text-deep-rose italic tracking-widest font-medium normal-case flex items-center justify-center ${
-          scrolled ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'
+          scrolled ? 'text-xl md:text-2xl' : 'text-3xl md:text-4xl'
         }`}>
           Aphrodite
         </div>
