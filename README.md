@@ -1,7 +1,7 @@
 # Aphrodite
 
 <div align="center">
-  <img src="public/logo.png" alt="Aphrodite Logo" width="128" />
+  <img src="public/logo.png" alt="Aphrodite Logo" width="256" />
   <h1 align="center">Aphrodite</h1>
   <p align="center">
     <strong>A next-generation dating app infused with the ancient art of FLAMES compatibility.</strong>
