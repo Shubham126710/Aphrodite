@@ -1,3 +1,4 @@
+import { supabase } from './lib/supabase';
 import { useState, useEffect } from 'react';
 import Loading from './components/Loading';
 import Hero from './components/Hero';
@@ -6,9 +7,40 @@ import Auth from './components/Auth';
 import Manifesto from './components/Manifesto';
 import Dashboard from './components/Dashboard';
 
+export interface UserProfileData {
+  firstName: string;
+  lastName: string;
+  avatarUrl: string;
+  bio?: string;
+  hobbies?: string;
+  location?: string;
+  hasCompletedTour?: boolean;
+}
+
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState<'home' | 'auth' | 'manifesto' | 'dashboard'>('home');
+  const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.user_metadata) {
+        const metadata = session.user.user_metadata;
+        setUserProfile({
+          
+          firstName: metadata.first_name || "User",
+          lastName: metadata.last_name || "",
+          avatarUrl: metadata.avatar_url || "/avatar1.png",
+          bio: metadata.bio || "",
+          hobbies: metadata.hobbies || "",
+          location: metadata.location || "",
+          hasCompletedTour: metadata.hasCompletedTour === true
+        });
+        setCurrentPage('dashboard');
+      }
+    });
+  }, []);
+
 
   // For nice, smooth reveals without causing layout jank
   useEffect(() => {
@@ -40,9 +72,9 @@ function App() {
           {currentPage !== 'auth' && currentPage !== 'dashboard' && <Navbar setCurrentPage={setCurrentPage} />}
 
           <div className="perspective-container">
-            {currentPage === 'auth' && <Auth setCurrentPage={setCurrentPage} />}
+            {currentPage === 'auth' && <Auth setCurrentPage={setCurrentPage} setUserProfile={setUserProfile} />}
             
-            {currentPage === 'dashboard' && <Dashboard setCurrentPage={setCurrentPage} />}
+            {currentPage === 'dashboard' && <Dashboard setCurrentPage={setCurrentPage} userProfile={userProfile} setUserProfile={setUserProfile} />}
             
             {currentPage === 'manifesto' && <Manifesto setCurrentPage={setCurrentPage} />}
 
@@ -216,57 +248,88 @@ function App() {
 
           {/* Footer - Always Visible except Auth */}
           {currentPage !== 'auth' && (
-            <footer className="relative bg-deep-rose text-off-white py-16 px-6 md:px-12 overflow-hidden border-t-0">
-               
-               <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between gap-12 font-sans relative z-10 pt-4">
-                 <div className="md:w-1/2">
-                 <div className="flex items-start md:items-center flex-col md:flex-row gap-5 mb-6">
-                   <img src="/logo.png" alt="Aphrodite Logo" className="h-20 md:h-32 w-auto object-contain drop-shadow-lg" />
-                   <h2 className="font-serif text-4xl md:text-5xl text-soft-blush italic pt-2 md:pt-0">Aphrodite</h2>
-                 </div>
-                 <p className="text-off-white/80 text-sm max-w-sm leading-relaxed mb-6">
-                   Reimagining romance for the modern era. An exclusive digital sanctuary for those who still believe in love at first sight.
-                 </p>
-                 <div className="flex gap-4">
-                   <a href="#" className="w-8 h-8 rounded-full bg-off-white/10 flex items-center justify-center text-off-white/70 hover:bg-primary-pink hover:text-off-white transition-colors">ig</a>
-                   <a href="#" className="w-8 h-8 rounded-full bg-off-white/10 flex items-center justify-center text-off-white/70 hover:bg-primary-pink hover:text-off-white transition-colors">tw</a>
-                   <a href="#" className="w-8 h-8 rounded-full bg-off-white/10 flex items-center justify-center text-off-white/70 hover:bg-primary-pink hover:text-off-white transition-colors">pi</a>
-                 </div>
-               </div>
-
-                <div className="md:w-1/2 flex flex-col sm:flex-row gap-8 md:gap-16 pt-4 md:pt-0">
-                  {/* Shubham Contact */}
-                  <div>
-                    <h4 className="text-[10px] uppercase tracking-widest text-white/50 font-bold mb-4">Contact Shubham</h4>
-                    <ul className="space-y-3 text-xs text-off-white/70 font-sans">
-                      <li>Phone: <a href="tel:8897773251" className="hover:text-primary-pink hover:underline transition-colors">8897773251</a></li>
-                      <li>Email: <a href="mailto:shubham360upadhyay@gmail.com" className="hover:text-primary-pink hover:underline transition-colors">shubham360upadhyay@gmail.com</a></li>
-                      <li>Insta: <a href="https://instagram.com/iamshubham_15" target="_blank" className="hover:text-primary-pink hover:underline transition-colors">@iamshubham_15</a></li>
-                    </ul>
+             <footer className="relative bg-deep-rose text-off-white py-16 px-6 md:px-12 overflow-hidden border-t-0">
+                <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between gap-16 font-sans relative z-10 pt-4">
+                  <div className="md:w-5/12 flex flex-col items-center md:items-start text-center md:text-left">
+                    <div className="flex items-center gap-4 mb-4">
+                      <img src="/logo.png" alt="Aphrodite Logo" className="h-16 md:h-20 w-auto object-contain drop-shadow-lg" />
+                      <h2 className="font-serif text-4xl md:text-5xl text-soft-blush italic">Aphrodite</h2>
+                    </div>
+                    <p className="text-off-white/70 text-sm max-w-sm leading-relaxed">
+                      Reimagining romance for the modern era. An exclusive digital sanctuary for those who still believe in love at first sight.
+                    </p>
                   </div>
-                  
-                  {/* Harshita Contact */}
-                  <div>
-                    <h4 className="text-[10px] uppercase tracking-widest text-white/50 font-bold mb-4">Contact Harshita</h4>
-                    <ul className="space-y-3 text-xs text-off-white/70 font-sans">
-                      <li>Phone: <a href="tel:7874594222" className="hover:text-primary-pink hover:underline transition-colors">7874594222</a></li>
-                      <li>Email: <a href="mailto:harshusingh2710@gmail.com" className="hover:text-primary-pink hover:underline transition-colors">harshusingh2710@gmail.com</a></li>
-                      <li>Insta: <a href="https://instagram.com/singh_harshita1706" target="_blank" className="hover:text-primary-pink hover:underline transition-colors">@singh_harshita1706</a></li>
-                    </ul>
-                  </div>
-               </div>
-             </div>
 
-             <div className="max-w-6xl mx-auto mt-16 pt-8 border-t border-off-white/10 text-center flex flex-col md:flex-row justify-between items-center text-xs text-off-white/50 relative z-10">
-               <p>© 2026 Aphrodite Dating. All rights reserved.</p>
-               <p className="mt-4 md:mt-0 tracking-widest uppercase">Made with ♥ in Paris</p>
-             </div>
-             
-             {/* Huge background text */}
-             <div className="absolute bottom-[-5%] left-1/2 -translate-x-1/2 text-[15vw] font-serif font-bold text-off-white/5 whitespace-nowrap pointer-events-none -z-0">
-               ROMANCE
-             </div>
-          </footer>
+                  <div className="md:w-7/12 flex flex-col gap-8 border-t border-off-white/10 md:border-t-0 pt-8 xl:pl-10 md:pt-0 md:border-l md:border-off-white/10 items-center md:items-start text-center md:text-left">
+                    <h3 className="font-serif text-3xl md:text-4xl text-soft-blush italic md:pl-4">Contact us:</h3>
+                    
+                    <div className="flex flex-col sm:flex-row gap-10 md:gap-16 md:pl-4 w-full justify-center md:justify-start">
+                      {/* Shubham Contact */}
+                      <div className="flex-1 flex flex-col items-center md:items-start">
+                        <h4 className="text-sm font-sans tracking-wide text-off-white/90 mb-5 uppercase">Shubham Upadhyay</h4>
+                        <div className="flex gap-4 justify-center md:justify-start">
+                          <a href="tel:8897773251" className="group flex items-center hover:text-white transition-colors" title="Phone">
+                            <span className="w-12 h-12 shrink-0 rounded-full bg-off-white/5 flex items-center justify-center group-hover:bg-primary-pink group-hover:scale-110 transition-all shadow-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            </span>
+                          </a>
+                          <a href="mailto:shubham360upadhyay@gmail.com" className="group flex items-center hover:text-white transition-colors" title="Email">
+                            <span className="w-12 h-12 shrink-0 rounded-full bg-off-white/5 flex items-center justify-center group-hover:bg-primary-pink group-hover:scale-110 transition-all shadow-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            </span>
+                          </a>
+                          <a href="https://instagram.com/iamshubham_15" target="_blank" rel="noopener noreferrer" className="group flex items-center hover:text-white transition-colors" title="Instagram">
+                            <span className="w-12 h-12 shrink-0 rounded-full bg-off-white/5 flex items-center justify-center group-hover:bg-primary-pink group-hover:scale-110 transition-all shadow-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16.11 7.89h.01"/><path d="M15.22 12A3.22 3.22 0 1 1 12 8.78 3.22 3.22 0 0 1 15.22 12z"/></svg>
+                            </span>
+                          </a>
+                          <a href="https://www.linkedin.com/in/shubham-upadhyay-a12a9428b/" target="_blank" rel="noopener noreferrer" className="group flex items-center hover:text-white transition-colors" title="LinkedIn">
+                            <span className="w-12 h-12 shrink-0 rounded-full bg-off-white/5 flex items-center justify-center group-hover:bg-primary-pink group-hover:scale-110 transition-all shadow-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                            </span>
+                          </a>
+                        </div>
+                      </div>
+                      
+                      {/* Harshita Contact */}
+                      <div className="flex-1 flex flex-col items-center md:items-start mt-8 sm:mt-0">
+                        <h4 className="text-sm font-sans tracking-wide text-off-white/90 mb-5 uppercase">Harshita Singh</h4>
+                        <div className="flex gap-4 justify-center md:justify-start">
+                          <a href="tel:7874594222" className="group flex items-center hover:text-white transition-colors" title="Phone">
+                            <span className="w-12 h-12 shrink-0 rounded-full bg-off-white/5 flex items-center justify-center group-hover:bg-primary-pink group-hover:scale-110 transition-all shadow-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            </span>
+                          </a>
+                          <a href="mailto:harshusingh2710@gmail.com" className="group flex items-center hover:text-white transition-colors" title="Email">
+                            <span className="w-12 h-12 shrink-0 rounded-full bg-off-white/5 flex items-center justify-center group-hover:bg-primary-pink group-hover:scale-110 transition-all shadow-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            </span>
+                          </a>
+                          <a href="https://instagram.com/singh_harshita1706" target="_blank" rel="noopener noreferrer" className="group flex items-center hover:text-white transition-colors" title="Instagram">
+                            <span className="w-12 h-12 shrink-0 rounded-full bg-off-white/5 flex items-center justify-center group-hover:bg-primary-pink group-hover:scale-110 transition-all shadow-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16.11 7.89h.01"/><path d="M15.22 12A3.22 3.22 0 1 1 12 8.78 3.22 3.22 0 0 1 15.22 12z"/></svg>
+                            </span>
+                          </a>
+                          <a href="https://www.linkedin.com/in/harshita-singh-5686a1261/" target="_blank" rel="noopener noreferrer" className="group flex items-center hover:text-white transition-colors" title="LinkedIn">
+                            <span className="w-12 h-12 shrink-0 rounded-full bg-off-white/5 flex items-center justify-center group-hover:bg-primary-pink group-hover:scale-110 transition-all shadow-sm">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                            </span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="max-w-6xl mx-auto mt-16 pt-8 border-t border-off-white/10 text-center flex flex-col md:flex-row justify-between items-center text-xs text-off-white/50 relative z-10">
+                  <p>© 2026 Aphrodite Dating. All rights reserved.</p>
+                  <p className="mt-4 md:mt-0 tracking-widest uppercase">Made with ♥ in Paris</p>
+                </div>
+                {/* Huge background text */}
+                <div className="absolute bottom-[2%] md:bottom-[-5%] left-1/2 -translate-x-1/2 text-[18vw] md:text-[15vw] font-serif font-bold text-off-white/5 whitespace-nowrap pointer-events-none -z-0">
+                  ROMANCE
+                </div>
+              </footer>
           )}
           </div>
         </main>

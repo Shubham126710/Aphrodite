@@ -1,11 +1,14 @@
+import type { UserProfileData } from "../App";
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
 export interface AuthProps {
+  setUserProfile: React.Dispatch<React.SetStateAction<UserProfileData | null>>;
+
   setCurrentPage: (page: 'home' | 'auth' | 'manifesto' | 'dashboard') => void;
 }
 
-export default function Auth({ setCurrentPage }: AuthProps) {
+export default function Auth({ setCurrentPage, setUserProfile }: AuthProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,11 +30,21 @@ export default function Auth({ setCurrentPage }: AuthProps) {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
+        const metadata = data.user.user_metadata || {};
+        setUserProfile({
+          firstName: metadata.first_name || "User",
+          lastName: metadata.last_name || "",
+          avatarUrl: metadata.avatar_url || "/avatar1.png",
+          bio: metadata.bio || "",
+          hobbies: metadata.hobbies || "",
+          location: metadata.location || "",
+          hasCompletedTour: metadata.hasCompletedTour || false
+        });
         setMessage('Successfully logged in!');
         setTimeout(() => setCurrentPage('dashboard'), 500);
       } else {
@@ -49,6 +62,15 @@ export default function Auth({ setCurrentPage }: AuthProps) {
           }
         });
         if (error) throw error;
+        setUserProfile({
+          firstName,
+          lastName,
+          avatarUrl: `/avatar${avatarIndex}.png`,
+          bio: "",
+          hobbies: "",
+          location: "",
+          hasCompletedTour: false
+        });
         setMessage('Application submitted! Check your email for a confirmation link.');
       }
     } catch (err: any) {

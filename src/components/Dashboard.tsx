@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { supabase } from '../lib/supabase';
+import { useState, useEffect } from 'react';
 
 interface Profile {
   id: number;
@@ -30,19 +31,31 @@ const flamesOutcomes = [
   { letter: 'S', word: 'Siblings', desc: 'A familiar, comforting energy, like you have known each other forever.' }
 ];
 
+import type { UserProfileData } from '../App';
+
 export interface DashboardProps {
+  userProfile: UserProfileData | null;
+  setUserProfile: React.Dispatch<React.SetStateAction<UserProfileData | null>>;
   setCurrentPage: (page: 'home' | 'auth' | 'manifesto' | 'dashboard') => void;
 }
 
-export default function Dashboard({ setCurrentPage }: DashboardProps) {
-  const [tourStep, setTourStep] = useState<number>(0);
+export default function Dashboard({ setCurrentPage, userProfile, setUserProfile }: DashboardProps) {
+  const [tourStep, setTourStep] = useState<number>(userProfile?.hasCompletedTour ? 15 : 0);
+  
+  // Re-eval when profile finally loads
+  
+  useEffect(() => {
+    if (userProfile?.hasCompletedTour) {
+      setTourStep(15);
+    }
+  }, [userProfile?.hasCompletedTour]);
   // @ts-expect-error unused
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [matchData, setMatchData] = useState<{ profile: Profile, outcome: typeof flamesOutcomes[0], score: number, distribution: Record<string, number> } | null>(null);
   const [swipeState, setSwipeState] = useState<'idle' | 'left' | 'right'>('idle');
   const [dragOffset, setDragOffset] = useState<number>(0);
-  const [view, setView] = useState<'swipe' | 'chat' | 'matches' | 'stats'>('swipe');
+  const [view, setView] = useState<'swipe' | 'chat' | 'matches' | 'stats' | 'profile'>('swipe');
   const [chatPartner, setChatPartner] = useState<Profile | null>(null);
   const [messages, setMessages] = useState<{sender: 'me' | 'them', text: string}[]>([]);
 
@@ -66,28 +79,56 @@ export default function Dashboard({ setCurrentPage }: DashboardProps) {
     }
   };
 
+  const computeFlamesResult = (name1: string, name2: string): string => {
+    let n1 = name1.toLowerCase().replace(/[^a-z]/g, '').split('');
+    let n2 = name2.toLowerCase().replace(/[^a-z]/g, '').split('');
+
+    for (let i = 0; i < n1.length; i++) {
+      if (n1[i] === '') continue;
+      for (let j = 0; j < n2.length; j++) {
+        if (n1[i] === n2[j]) {
+          n1[i] = '';
+          n2[j] = '';
+          break;
+        }
+      }
+    }
+
+    const remainingCount = n1.filter(c => c !== '').length + n2.filter(c => c !== '').length;
+    if (remainingCount === 0) return 'F';
+    
+    let flames = ['F', 'L', 'A', 'M', 'E', 'S'];
+    let index = 0;
+    while (flames.length > 1) {
+      index = (index + remainingCount - 1) % flames.length;
+      flames.splice(index, 1);
+    }
+    return flames[0];
+  };
+
   const calculateFlames = (profile: Profile) => {
-    // Generate a distribution that sums to 100
+    const userName = userProfile?.firstName || 'Guest';
+    const resultLetter = computeFlamesResult(userName, profile.name);
+    const winningOutcome = flamesOutcomes.find(o => o.letter === resultLetter) || flamesOutcomes[0];
+    
     let remaining = 100;
     const distribution: Record<string, number> = {};
-    const randomizedOutcomes = [...flamesOutcomes].sort(() => 0.5 - Math.random());
-    
-    // Assign highest to the first to guarantee it's the winner
-    const topScore = Math.floor(Math.random() * 30) + 50; // 50-80%
-    distribution[randomizedOutcomes[0].word] = topScore;
+    const topScore = Math.floor(Math.random() * 30) + 50; // 50-80% for the winner
+    distribution[winningOutcome.word] = topScore;
     remaining -= topScore;
     
-    for (let i = 1; i < randomizedOutcomes.length; i++) {
-        if (i === randomizedOutcomes.length - 1) {
-            distribution[randomizedOutcomes[i].word] = remaining;
+    const others = flamesOutcomes.filter(o => o.letter !== resultLetter).sort(() => 0.5 - Math.random());
+    for (let i = 0; i < others.length; i++) {
+        if (i === others.length - 1) {
+            distribution[others[i].word] = remaining;
         } else {
             const share = Math.floor(Math.random() * (remaining / 2));
-            distribution[randomizedOutcomes[i].word] = share;
+            distribution[others[i].word] = share;
             remaining -= share;
         }
     }
     
-    setMatchData({ profile, outcome: randomizedOutcomes[0], score: topScore, distribution });
+    setMatchData({ profile, outcome: winningOutcome, score: topScore, distribution });
   };
 
   const handleSwipe = (direction: 'left' | 'right') => {
@@ -166,8 +207,18 @@ export default function Dashboard({ setCurrentPage }: DashboardProps) {
 
   const handleAnswer = (option: string) => {
     setAnswers(prev => ({ ...prev, [tourStep]: option }));
-    if (tourStep < questions.length) {
+    if (tourStep < questions.length - 1) {
       setTourStep(prev => prev + 1);
+    } else {
+      setTourStep(questions.length);
+      if (setUserProfile && userProfile) {
+        setUserProfile({ ...userProfile, hasCompletedTour: true });
+          supabase.auth.updateUser({
+            data: { hasCompletedTour: true }
+          }).catch(err => console.error(err));
+      } else if (setUserProfile) {
+        setUserProfile({ firstName: 'Guest', lastName: '', avatarUrl: '/avatar1.png', hasCompletedTour: true });
+      }
     }
   };
 
@@ -202,7 +253,100 @@ export default function Dashboard({ setCurrentPage }: DashboardProps) {
     );
   }
 
-  // 2. Render Main Dashboard (Swipe Interface)
+  
+    // 5. Render Profile Customization
+    if (view === 'profile') {
+      return (
+        <div className="min-h-screen bg-soft-blush flex flex-col pt-12 p-4 relative max-w-lg mx-auto">
+          {/* Header */}
+          <div className="flex justify-between items-center py-4 z-10 w-full mb-4 text-neutral-dark">
+             <button onClick={() => setView('swipe')} className="rounded-full w-12 h-12 border border-deep-rose/20 flex items-center justify-center text-deep-rose transition-all hover:bg-deep-rose hover:text-white bg-off-white/80 shadow-sm">
+               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 -ml-1"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+             </button>
+             <h2 className="font-serif text-2xl md:text-3xl italic mx-auto text-center translate-x-[-24px] text-deep-rose">My Profile</h2>
+          </div>
+          
+          <div className="bg-off-white shadow-[0_20px_40px_-15px_rgba(158,58,68,0.2)] rounded-[40px] p-8 border border-deep-rose/10 mx-2 flex-1 overflow-y-auto w-full relative mb-6">
+             <div className="absolute top-0 right-0 w-32 h-32 bg-deep-rose/5 rounded-bl-[100px] pointer-events-none"></div>
+             
+             <div className="flex flex-col items-center mb-8 relative z-10">
+                <div className="relative group">
+                  <div className="w-32 h-32 rounded-full overflow-hidden border-[4px] border-white shadow-xl mb-4 bg-deep-rose/5 relative">
+                     <img src={userProfile?.avatarUrl || "/avatar1.png"} alt="My Avatar" className="w-full h-full object-cover mix-blend-multiply" />
+                  </div>
+                  <div className="absolute bottom-4 right-0 w-8 h-8 bg-primary-pink text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white pointer-events-none">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                  </div>
+                </div>
+                <h3 className="font-serif text-3xl text-neutral-dark italic">{userProfile?.firstName} {userProfile?.lastName}</h3>
+                <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-neutral-dark/40 mt-2">Verified Member</p>
+             </div>
+             
+             <div className="space-y-6 relative z-10 mb-8">
+               <div className="group">
+                 <label className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-deep-rose mb-3">
+                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 opacity-70"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                   About Me
+                 </label>
+                 <textarea 
+                   className="w-full bg-soft-blush/30 border border-deep-rose/10 rounded-2xl p-4 text-sm focus:outline-none focus:border-deep-rose/40 focus:bg-soft-blush/50 min-h-[120px] transition-all resize-none placeholder:text-neutral-dark/30 text-neutral-dark/80"
+                   placeholder="Your story begins here..."
+                   value={userProfile?.bio || ''}
+                   onChange={e => setUserProfile?.(prev => prev ? {...prev, bio: e.target.value} : null)}
+                 />
+               </div>
+               
+               <div className="group">
+                 <label className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-deep-rose mb-3">
+                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 opacity-70"><path strokeLinecap="round" strokeLinejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                   Hobbies & Interests
+                 </label>
+                 <input 
+                   type="text"
+                   className="w-full bg-soft-blush/30 border border-deep-rose/10 rounded-full px-5 py-4 text-sm focus:outline-none focus:border-deep-rose/40 focus:bg-soft-blush/50 transition-all placeholder:text-neutral-dark/30 text-neutral-dark/80"
+                   placeholder="e.g. Hiking, Cooking, Art, Indie Films"
+                   value={userProfile?.hobbies || ''}
+                   onChange={e => setUserProfile?.(prev => prev ? {...prev, hobbies: e.target.value} : null)}
+                 />
+               </div>
+               
+               <div className="group">
+                 <label className="flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest text-deep-rose mb-3">
+                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 opacity-70"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                   Location
+                 </label>
+                 <input 
+                   type="text"
+                   className="w-full bg-soft-blush/30 border border-deep-rose/10 rounded-full px-5 py-4 text-sm focus:outline-none focus:border-deep-rose/40 focus:bg-soft-blush/50 transition-all placeholder:text-neutral-dark/30 text-neutral-dark/80"
+                   placeholder="City, Country"
+                   value={userProfile?.location || ''}
+                   onChange={e => setUserProfile?.(prev => prev ? {...prev, location: e.target.value} : null)}
+                 />
+               </div>
+             </div>
+               
+             <button onClick={() => {
+                 setView('swipe');
+                 if (userProfile) {
+                   supabase.auth.updateUser({
+                     data: {
+                       bio: userProfile.bio,
+                       hobbies: userProfile.hobbies,
+                       location: userProfile.location
+                     }
+                   }).catch(err => console.error(err));
+                 }
+             }} className="w-full py-5 bg-gradient-to-r from-deep-rose to-primary-pink text-off-white rounded-full font-bold uppercase tracking-widest text-[11px] shadow-[0_15px_30px_-10px_rgba(158,58,68,0.5)] transform hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                Save & Return
+             </button>
+          </div>
+        </div>
+      );
+    }
+
+
+    // 2. Render Main Dashboard (Swipe Interface)
   if (view === 'chat' && chatPartner) {
     return (
       <div className="min-h-screen bg-soft-blush flex flex-col pt-24 md:pt-32 pb-6 px-4 relative max-w-lg mx-auto animate-fade-in shadow-[0_0_50px_-10px_rgba(0,0,0,0.05)] border-x border-deep-rose/5 bg-off-white/80 backdrop-blur-md">
@@ -274,8 +418,12 @@ export default function Dashboard({ setCurrentPage }: DashboardProps) {
         </div>
 
         <div className="flex gap-4 items-center">
-          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-deep-rose/10 flex items-center justify-center border border-deep-rose/20 cursor-pointer hover:bg-deep-rose hover:text-white transition-colors group">
-             <span className="text-deep-rose group-hover:text-white font-bold text-[10px] md:text-xs uppercase transition-colors">Me</span>
+          <div onClick={() => setView('profile')} className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-deep-rose/20 overflow-hidden cursor-pointer hover:border-deep-rose transition-colors relative group bg-soft-blush flex items-center justify-center">
+            {userProfile?.avatarUrl ? (
+              <img src={userProfile.avatarUrl} alt="Me" className="w-full h-full object-cover mix-blend-multiply group-hover:opacity-80 transition-opacity" />
+            ) : (
+              <span className="text-deep-rose font-bold text-[10px] md:text-xs uppercase">Me</span>
+            )}
           </div>
         </div>
       </div>
@@ -294,7 +442,7 @@ export default function Dashboard({ setCurrentPage }: DashboardProps) {
 
                <div className="flex items-center gap-6 mb-8 relative z-10">
                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-off-white shadow-xl overflow-hidden">
-                    <img src="/avatar1.png" alt="You" className="w-full h-full object-cover mix-blend-multiply bg-soft-blush" />
+                    <img src={userProfile?.avatarUrl || "/avatar1.png"} alt="You" className="w-full h-full object-cover mix-blend-multiply bg-soft-blush" />
                  </div>
                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-deep-rose flex py-2 items-center justify-center shadow-lg transform -rotate-12">
                    <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5 md:w-6 md:h-6"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
