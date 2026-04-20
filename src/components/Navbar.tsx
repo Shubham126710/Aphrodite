@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export interface NavbarProps {
-  setCurrentPage: (page: 'home' | 'auth' | 'manifesto') => void;
+  setCurrentPage: (page: 'home' | 'auth' | 'manifesto' | 'dashboard') => void;
 }
 
 export default function Navbar({ setCurrentPage }: NavbarProps) {

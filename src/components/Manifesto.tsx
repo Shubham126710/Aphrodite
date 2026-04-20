@@ -1,6 +1,6 @@
 
 export interface ManifestoProps {
-  setCurrentPage: (page: 'home' | 'auth' | 'manifesto') => void;
+  setCurrentPage: (page: 'home' | 'auth' | 'manifesto' | 'dashboard') => void;
 }
 
 export default function Manifesto({ setCurrentPage }: ManifestoProps) {
