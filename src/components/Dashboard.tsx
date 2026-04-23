@@ -359,7 +359,8 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
     // 5. Render Profile Customization
     if (view === 'profile') {
       return (
-        <div className="min-h-screen bg-soft-blush flex flex-col pt-12 p-4 relative max-w-lg mx-auto">
+        <div className="min-h-screen bg-soft-blush w-full flex flex-col items-center">
+          <div className="flex flex-col pt-12 p-4 md:p-8 md:pt-16 relative w-full max-w-lg md:max-w-4xl flex-1">
           {/* Header */}
           <div className="flex justify-between items-center py-4 z-10 w-full mb-4 text-neutral-dark">
              <button onClick={() => setView('swipe')} className="rounded-full w-12 h-12 border border-deep-rose/20 flex items-center justify-center text-deep-rose transition-all hover:bg-deep-rose hover:text-white bg-off-white/80 shadow-sm">
@@ -444,6 +445,7 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
              </button>
           </div>
         </div>
+        </div>
       );
     }
 
@@ -451,7 +453,8 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
     // 2. Render Main Dashboard (Swipe Interface)
   if (view === 'chat' && chatPartner) {
     return (
-      <div className="min-h-screen bg-soft-blush flex flex-col pt-24 md:pt-32 pb-6 px-4 relative max-w-lg mx-auto animate-fade-in shadow-[0_0_50px_-10px_rgba(0,0,0,0.05)] border-x border-deep-rose/5 bg-off-white/80 backdrop-blur-md">
+      <div className="min-h-screen bg-soft-blush w-full flex flex-col items-center justify-center py-6 px-4 md:px-8">
+        <div className="flex flex-col pt-24 md:pt-32 pb-6 px-4 relative w-full h-full max-w-lg md:max-w-4xl mx-auto flex-1 animate-fade-in shadow-[0_0_50px_-10px_rgba(0,0,0,0.05)] border border-deep-rose/5 bg-off-white/80 rounded-[40px] backdrop-blur-md overflow-hidden">
          {/* Chat Header */}
          <div className="absolute top-6 w-full left-0 px-8 flex justify-between items-center z-10">
            <button onClick={() => setView('swipe')} className="w-10 h-10 rounded-full border border-deep-rose/20 flex items-center justify-center text-deep-rose hover:bg-deep-rose/5 transition-colors">
@@ -497,6 +500,7 @@ export default function Dashboard({ setCurrentPage, userProfile, setUserProfile 
                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 ml-1"><path strokeLinecap="round" strokeLinejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg>
             </button>
          </form>
+        </div>
       </div>
     );
   }
